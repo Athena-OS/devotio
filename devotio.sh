@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root. Please use sudo."
+    exit 1
+fi
+
 ############################################################
 # Process the input options. Add options as needed.        #
 ############################################################
@@ -58,7 +63,9 @@ for disk in /sys/block/*; do
 
     device_info=$(lsblk -dn -o NAME,TYPE,MODEL,SIZE,MOUNTPOINT "/dev/$disk_name" 2>/dev/null)
 
-    if [[ "$disk_name" == zram* ]]; then
+    if blkid "/dev/$disk_name" | grep -q 'TYPE="crypto_LUKS"'; then
+        disk_type="LUKS Encrypted"
+    elif [[ "$disk_name" == zram* ]]; then
         if echo "$swap_devices" | grep -q "/dev/$disk_name"; then
             disk_type="RAM Disk (Swap)"
         else
@@ -132,6 +139,14 @@ secure_erase_ssd() {
     cryptsetup luksErase "$device"
 }
 
+secure_erase_luks() {
+    local device=$1
+    echo "Erasing crypto LUKS $device..."
+    dd if=/dev/urandom of="$device" bs=1M status=progress
+    shred -n 3 -z -v "$device"
+    cryptsetup luksErase "$device"
+}
+
 secure_erase_flash() {
     local device=$1
     echo "Erasing Flash Drive $device..."
@@ -168,6 +183,7 @@ perform_erase() {
         "USB HDD") secure_erase_hdd "$device" ;;
         "SSD") secure_erase_ssd "$device" ;;
         "USB SSD") secure_erase_ssd "$device" ;;
+        "LUKS Encrypted") secure_erase_luks "$device" ;;
         "USB Flash Drive") secure_erase_flash "$device" ;;
         "RAM Disk (zram)"|"RAM Disk (Swap)") secure_erase_zram "$device" ;;
         "Swap Device") secure_erase_swap "$device" ;;
