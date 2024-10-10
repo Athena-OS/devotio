@@ -120,60 +120,135 @@ fi
 secure_erase_hdd() {
     local device=$1
     echo "Erasing HDD $device..."
+    echo
+    echo "Formatting file system..."
     mkfs.ext4 -F "$device"
+    echo
+    echo "Running shred by 3 passes of overwriting..."
     shred -n 3 -z -v "$device"
+    echo
+    echo "Running dd by writing zeroes..."
     dd if=/dev/zero of="$device" bs=1M status=progress
+    echo
+    echo "Running dd by writing ones..."
     printf '\377' | dd of="$device" bs=1M status=progress conv=notrunc
+    echo
+    echo "Running dd by writing random data..."
     dd if=/dev/urandom of="$device" bs=1M status=progress conv=notrunc
+    echo
+    echo "Running wipe for multiple-pass overwriting..."
     wipe "$device"
-    cryptsetup luksErase "$device"
+    echo
+    initialize_luks_encryption "$device"
+    echo
+    wipe_luks_header "$device"
 }
 
 secure_erase_ssd() {
     local device=$1
     echo "Erasing SSD $device..."
+    echo
+    echo "Formatting file system..."
     mkfs.ext4 -F "$device"
+    echo
+    echo "Issuing TRIM commands..."
     blkdiscard "$device"
-    entropy=$(openssl rand -base64 32)
+    local entropy=$(openssl rand -base64 32)
+    echo
+    echo "Running ATA Secure Erase..."
     hdparm --user-master u --security-set-pass "$entropy" "$device"
     hdparm --user-master u --security-erase "$entropy" "$device"
-    cryptsetup luksErase "$device"
+    echo
+    initialize_luks_encryption "$device"
+    echo
+    wipe_luks_header "$device"
 }
 
 secure_erase_luks() {
     local device=$1
     echo "Erasing crypto LUKS $device..."
+    echo
+    echo "Running dd by writing random data..."
     dd if=/dev/urandom of="$device" bs=1M status=progress
+    echo
+    echo "Running shred by 3 passes of overwriting..."
     shred -n 3 -z -v "$device"
-    cryptsetup luksErase "$device"
+    echo
+    initialize_luks_encryption "$device"
+    echo
+    wipe_luks_header "$device"
 }
 
 secure_erase_flash() {
     local device=$1
     echo "Erasing Flash Drive $device..."
+    echo
+    echo "Formatting file system..."
     mkfs.ext4 -F "$device"
+    echo
+    echo "Running shred by 3 passes of overwriting..."
     shred -n 3 -z -v "$device"
+    echo
+    echo "Running dd by writing zeroes..."
     dd if=/dev/zero of="$device" bs=1M status=progress
+    echo
+    echo "Running dd by writing ones..."
     printf '\377' | dd of="$device" bs=1M status=progress conv=notrunc
+    echo
+    echo "Running dd by writing random data..."
     dd if=/dev/urandom of="$device" bs=1M status=progress conv=notrunc
-    cryptsetup luksErase "$device"
+    echo
+    initialize_luks_encryption "$device"
+    echo
+    wipe_luks_header "$device"
 }
 
 secure_erase_zram() {
     local device=$1
     echo "Erasing zram device $device..."
+    echo
+    echo "Turning off zram device..."
     swapoff "$device"
+    echo
+    echo "Running dd by writing random data..."
     dd if=/dev/urandom of="$device" bs=1M status=progress
+    echo
+    echo "Resetting zram device..."
     zramctl --reset "$device"
 }
 
 secure_erase_swap() {
     local device=$1
     echo "Erasing swap space $device..."
+    echo
+    echo "Turning off swap device..."
     swapoff "$device"
+    echo
+    echo "Running dd by writing zeroes..."
     dd if=/dev/zero of="$device" bs=1M
-    mkswap "$device"
-    swapon "$device"
+}
+
+initialize_luks_encryption() {
+    local device=$1
+    local entropy=$(openssl rand -base64 32)
+    echo "Initializing LUKS encryption on $device..."
+
+    # Warning: This will overwrite all data on the device
+    echo "$entropy" | cryptsetup luksFormat "$device" --batch-mode --key-file -
+    echo "LUKS encryption initialized on $device."
+}
+
+wipe_luks_header() {
+    local device=$1
+
+    # Check if the device is already a LUKS-encrypted volume
+    if cryptsetup isLuks "$device"; then
+        echo "Wiping LUKS header on $device..."
+        cryptsetup luksErase "$device" --batch-mode
+        echo "LUKS header wiped from $device."
+    else
+        echo "$device is not a LUKS-encrypted device; skipping luksErase."
+    fi
 }
 
 perform_erase() {
