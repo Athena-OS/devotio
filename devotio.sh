@@ -39,6 +39,7 @@ echo
 
 declare -A device_list
 
+boot_device=$(grep -oP 'root=/dev/\K[^ ]+' /proc/cmdline)
 swap_devices=$(awk 'NR>1 {print $1}' /proc/swaps)
 
 for disk in /sys/block/*; do
