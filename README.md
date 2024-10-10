@@ -19,6 +19,11 @@ Arch Linux runtime dependencies:
 util-linux coreutils e2fsprogs cryptsetup hdparm openssl wipe
 ```
 
+## Run 
+```
+sudo bash -c "$(curl -FsSL https://raw.githubusercontent.com/Athena-OS/devotio/refs/heads/main/devotio.sh)"
+```
+
 ## Bibliography
 
 [Wiping Techniques and Antiforensic Methods](https://www.researchgate.net/publication/328834436_Wiping_Techniques_and_Anti-Forensics_Methods)
