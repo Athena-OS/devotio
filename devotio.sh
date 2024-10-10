@@ -33,7 +33,7 @@ fi
 clear
 echo
 echo
-echo "              DEVOTIO"
+echo "                  DEVOTIO"
 echo
 echo
 echo -e "$dev"
