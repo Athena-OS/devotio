@@ -4,6 +4,7 @@ Devotio is a secure disk erasure tool based on **DoD  5220.22  M**, **ATA Secure
 It allows to select the specific device to erase or every disk on your system. It involves:
 * HDD
 * SSD
+* LUKS
 * USB
 * RAM
 * Zram
