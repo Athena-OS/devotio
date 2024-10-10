@@ -51,7 +51,7 @@ for disk in /sys/block/*; do
     disk_name=$(basename "$disk")
     
     # Skip sr* devices (optical drives)
-    if [[ "$disk_name" == sr* ]]; then
+    if [[ "$disk_name" == sr* ]] || [[ "$disk_name" == loop* ]]; then
         continue
     fi
 
