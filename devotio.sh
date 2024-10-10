@@ -49,6 +49,12 @@ for disk in /sys/block/*; do
         continue
     fi
 
+    # Skip the Live Environment boot device
+    if [[ "$disk_name" == "$boot_device" ]]; then
+        echo "Skipping boot device: /dev/$disk_name"
+        continue
+    fi
+
     device_info=$(lsblk -dn -o NAME,TYPE,MODEL,SIZE,MOUNTPOINT "/dev/$disk_name" 2>/dev/null)
 
     if [[ "$disk_name" == zram* ]]; then
