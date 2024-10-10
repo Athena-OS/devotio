@@ -21,7 +21,7 @@ util-linux coreutils e2fsprogs cryptsetup hdparm openssl wipe
 
 ## Run 
 ```
-sudo bash -c "$(curl -FsSL https://raw.githubusercontent.com/Athena-OS/devotio/refs/heads/main/devotio.sh)"
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/Athena-OS/devotio/refs/heads/main/devotio.sh)"
 ```
 
 ## Bibliography
