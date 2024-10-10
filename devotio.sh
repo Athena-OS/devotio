@@ -5,6 +5,8 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+start_time=$(date +%s)
+
 ############################################################
 # Process the input options. Add options as needed.        #
 ############################################################
@@ -23,9 +25,9 @@ while getopts ":l" option; do
 done
 
 if [ "$lat" ]; then
-    dev="$(echo 'H4sIAAAAAAAAAzVQQW4DIQz8ih+wyiOqXCK1lar2uBfCehNLCybG8P4ObHvADB7GHvsWMi90a6WIsy30EaxSCRN/NTEBveY3Pg7NYaH3YFwXukoX+tTOucpxJuiWN3mw47XmwS/0amotEVenoiA8VMpa3Wb6CSQtvRpPAW40z6NYV1gwjmqEDozvywASEhV2pR2pU9ZcKMlTiJ02OIkulRIjdEk40dWmzLQWNh706MsV+jV38cD4j4CB0YdpV0uyYWpKas7DVdh2iRKgvaz5W2JzuLE7SuWWYythzIpKowuKDS8nCnTwQ3Ru8A/V/7FBR8Tr8Iqx5d4q/WDLzeYmNu7Yrl5+ASRQMy6fAQAA' | base64 -d | gzip -d)"
+    dev="$(echo 'H4sIAAAAAAAAAz1QQW4DIQz8yjxglUdUuURqK1XtsRfCOomlBRMD+/4MpOkBa7CZ8TAATiHLglMvRZv4go/gFSVM/NXVlePfDOBNts1yWPAeXOqCo+6KT9slV92eDZzyqldpvE3KeLLg3s17gtSGYpy1UJGtNp/tG5H2dO/y4hDSRR6Su9GLSzQH9wgZywAaEoo0w4Wtf2ZviqQ3hTSstBSbViRh2TXxxGY+mW61iMsYj+1SKTEVdm1BSGHh/7lNcDFPujIEJPMmw1tYLxo1kH6YrG+NvdGWnymYe469hPFvio1d1BuOnihgk6vaK9O/S32lwBeR9ThMMwI994of5t59prLKzrzt8ACO2WhFtwEAAA==' | base64 -d | gzip -d)"
 else
-    dev="$(echo 'H4sIAAAAAAAAA02QS27DMAxE9zkFD2DkDi3aRYKmRffeMDZtEZVFg5Lt+vYlFQfoTvzocWa+AlwxLbmB6zJzIW1gwBJI4YZq3e+FlX3epleKURI28IFKNnrjleFTVkqZIzdwST2PVNhWR+kzbEEg4Eowy2Y8W1RYMmDqQRYFSjQxOfiGyXkXmBV3KAK7LF7eaXw+Mf/4s03+2xdl4kww7ZniAKYXRsWO2lQCFt+EjWM0K6so3uPu41QOJc5YuSui9dpEtTPtEE2jiUtVlffu5n0ES0XFg1EeQ6nLPVlI/tlPH05Ahgrhgc5tesmms9qn39nyyiaipy5adr3RL5CxUx64I8NYbB75xgZ9eDInD3gNp948Gu+oJRhhEH369+mjhEgjS2o8CDqKKuyfzvPpdPoDh1Ym7vcBAAA=' | base64 -d | gzip -d)"
+    dev="$(echo 'H4sIAAAAAAAAA02RQW6EMAxFr/IPgHqHVu1iRp1W3XfjAQNWQ4ycAOX2dQIjdRfbn+/vB4DPEVeKS2pwXWbJbA16yiMbbmTe/VrEpMy/I4AXDkEjNXgnY5++yir40JVjkiANLrGTgbMc6kG7hG1UjLQyZt3c1bWGJYFiB10MHHkSPu1vFIvrBbPRjqzYdSnlnYfHk9JPeVZ58ShanSQxpj1x6OHZMRi1XCV5pFz02CQEv2xVo3vYiyLmM1KxWaXNanXnxLUz7Qge1lPGR7zSvjuNAc7JtKAyGcZcBx07tvJ9CXBeBe2rj/T8VB2ekweuNPh3doLJo3TcBqfZHTsuSNSa9NKymznL8is2cevjvuOqY0vFVZefjTeyPB4+vdqDSBEcJQIPorE50fBZ15z/Yj/9AQy/jy8YAgAA' | base64 -d | gzip -d)"
 fi
 
 clear
@@ -286,3 +288,7 @@ else
     echo "Invalid choice. Exiting."
     exit 1
 fi
+
+end_time=$(date +%s)
+elapsed_time=$((end_time - start_time))
+echo "Script completed in $((elapsed_time / 60)) minutes and $((elapsed_time % 60)) seconds."
