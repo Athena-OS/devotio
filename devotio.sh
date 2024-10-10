@@ -134,6 +134,7 @@ secure_erase_ssd() {
     echo "Erasing SSD $device..."
     mkfs.ext4 -F "$device"
     blkdiscard "$device"
+    entropy=$(openssl rand -base64 32)
     hdparm --user-master u --security-set-pass "$entropy" "$device"
     hdparm --user-master u --security-erase "$entropy" "$device"
     cryptsetup luksErase "$device"
